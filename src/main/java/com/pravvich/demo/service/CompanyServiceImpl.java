@@ -4,7 +4,6 @@ import com.pravvich.demo.model.Company;
 import com.pravvich.demo.repository.CompanyRepository;
 import lombok.RequiredArgsConstructor;
 import org.javers.spring.annotation.JaversAuditable;
-import org.javers.spring.annotation.JaversAuditableDelete;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -26,11 +25,4 @@ public class CompanyServiceImpl implements CompanyService {
     public Company save(Company company) {
         return companyRepository.save(company);
     }
-
-    @Override
-    @JaversAuditableDelete
-    public void delete(Company company) {
-        companyRepository.delete(company);
-    }
-
 }

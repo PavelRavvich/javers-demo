@@ -1,0 +1,13 @@
+GET http://localhost:8080/api/account/1
+Accept: application/json
+
+###
+POST http://localhost:8080/api/company
+Content-Type: application/json
+
+{
+    "id": 1,
+    "name": "Test Company Name 1"
+}
+
+###

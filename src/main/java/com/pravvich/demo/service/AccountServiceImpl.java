@@ -4,7 +4,6 @@ import com.pravvich.demo.model.Account;
 import com.pravvich.demo.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.javers.spring.annotation.JaversAuditable;
-import org.javers.spring.annotation.JaversAuditableDelete;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -25,12 +24,6 @@ public class AccountServiceImpl implements AccountService {
     @JaversAuditable
     public Account save(Account account) {
         return accountRepository.save(account);
-    }
-
-    @Override
-    @JaversAuditableDelete
-    public void delete(Account account) {
-        accountRepository.delete(account);
     }
 
 }

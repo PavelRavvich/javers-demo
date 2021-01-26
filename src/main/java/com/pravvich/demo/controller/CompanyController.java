@@ -13,8 +13,8 @@ public class CompanyController {
 
     private final CompanyServiceImpl companyService;
 
-    @GetMapping("/id")
-    public ResponseEntity<Company> get(@PathVariable(name = "id") Long id) {
+    @GetMapping(path = "/{id}")
+    public ResponseEntity<Company> getById(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(companyService.getById(id));
     }
 
@@ -22,11 +22,4 @@ public class CompanyController {
     public ResponseEntity<Company> save(@RequestBody Company company) {
         return ResponseEntity.ok(companyService.save(company));
     }
-
-    @DeleteMapping
-    public ResponseEntity<Long> delete(@RequestBody Company company) {
-        companyService.delete(company);
-        return ResponseEntity.ok(company.getId());
-    }
-
 }

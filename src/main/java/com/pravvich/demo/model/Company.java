@@ -18,6 +18,9 @@ public class Company {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "name")
+    private String name;
+
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
     private List<Account> accounts;
 
