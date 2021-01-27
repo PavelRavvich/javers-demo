@@ -1,3 +1,9 @@
+CREATE TABLE IF NOT EXISTS jv_comment
+(
+    major_id BIGSERIAL PRIMARY KEY,
+    text     TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS company
 (
     id   BIGSERIAL PRIMARY KEY,
@@ -7,7 +13,7 @@ CREATE TABLE IF NOT EXISTS company
 CREATE TABLE IF NOT EXISTS account
 (
     id         BIGSERIAL PRIMARY KEY,
-    number     BIGINT UNIQUE  NOT NULL,
+    number     BIGINT UNIQUE NOT NULL,
     balance    NUMERIC(10, 2),
     company_id BIGINT REFERENCES company (id)
 );

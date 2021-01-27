@@ -1,5 +1,6 @@
 package com.pravvich.demo.controller;
 
+import com.pravvich.demo.dto.TransferDto;
 import com.pravvich.demo.model.Transfer;
 import com.pravvich.demo.service.TransferService;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +20,7 @@ public class TransferController {
     }
 
     @PostMapping
-    public ResponseEntity<Transfer> save(@RequestBody Transfer transfer) {
+    public ResponseEntity<TransferDto> save(@RequestBody TransferDto transfer) {
         return ResponseEntity.ok(transferService.save(transfer));
     }
 }
