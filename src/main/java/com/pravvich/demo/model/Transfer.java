@@ -18,6 +18,9 @@ import java.sql.Timestamp;
 })
 public class Transfer {
 
+    @Transient
+    private AuditMetadata auditMetadata = new AuditMetadata();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

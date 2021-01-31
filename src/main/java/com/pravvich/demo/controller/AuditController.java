@@ -17,10 +17,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
@@ -45,17 +44,28 @@ public class AuditController {
                 .build();
         List<Change> accountChanges = javers.findChanges(accountQuery);
 
-        JqlQuery transferQuery = QueryBuilder.byClass(Transfer.class)
-                .withCommitProperty("senderId", id.toString())
-                .withNewObjectChanges()
-                .build();
-        Changes transferChanges = javers.findChanges(transferQuery);
+        Map<String, ChangeBunch> changeBunches = new HashMap<>();
 
-        List<Change> changes = Stream.of(accountChanges, transferChanges)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+        for (Change accountChange : accountChanges) {
+            String auditGroupId = accountChange.getCommitMetadata()
+                    .orElseThrow()
+                    .getProperties()
+                    .get("auditGroupId");
+            if (!changeBunches.containsKey(auditGroupId)) {
+                JqlQuery transferQuery = QueryBuilder.byClass(Transfer.class)
+                        .withCommitProperty("auditGroupId", auditGroupId)
+                        .withNewObjectChanges()
+                        .build();
+                Changes changes = javers.findChanges(transferQuery);
+                changes.add(accountChange);
+                ChangeBunch changeBunch = ChangeBunch.builder().changes(changes).build();
+                changeBunches.put(auditGroupId, changeBunch);
+            } else {
+                changeBunches.get(auditGroupId).getChanges().add(accountChange);
+            }
+        }
 
-        return javers.getJsonConverter().toJson(changes);
+        return javers.getJsonConverter().toJson(changeBunches.values());
     }
 
     private long getId(Change change) {
@@ -64,7 +74,7 @@ public class AuditController {
 
     @Builder
     @Data
-    static class ChangeButch {
+    static class ChangeBunch {
         private String comment;
         private List<Change> changes;
     }

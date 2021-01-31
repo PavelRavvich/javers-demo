@@ -20,6 +20,9 @@ import java.util.List;
 })
 public class Account {
 
+    @Transient
+    private AuditMetadata auditMetadata = new AuditMetadata();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,4 +42,5 @@ public class Account {
 
     @OneToMany(mappedBy = "recipient", fetch = FetchType.LAZY)
     private List<Transfer> recipients;
+
 }

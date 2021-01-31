@@ -8,7 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
 import java.util.UUID;
 
 @Data
@@ -16,22 +15,16 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TransferDto {
+public class AccountDto {
 
     @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("value")
-    private BigDecimal value;
+    @JsonProperty("number")
+    private Long number;
 
-    @JsonProperty("datetime")
-    private Timestamp datetime;
-
-    @JsonProperty("senderId")
-    private Long senderId;
-
-    @JsonProperty("recipientId")
-    private Long recipientId;
+    @JsonProperty("balance")
+    private BigDecimal balance;
 
     @JsonProperty("auditGroupId")
     private UUID auditGroupId;

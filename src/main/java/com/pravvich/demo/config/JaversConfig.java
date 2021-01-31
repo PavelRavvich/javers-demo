@@ -1,5 +1,6 @@
 package com.pravvich.demo.config;
 
+import com.pravvich.demo.model.Account;
 import com.pravvich.demo.model.Transfer;
 import org.javers.spring.auditable.CommitPropertiesProvider;
 import org.springframework.context.annotation.Bean;
@@ -30,8 +31,14 @@ public class JaversConfig {
                     final Long recipientId = transfer.getRecipient().getId();
                     return Map.of(
                             "senderId", senderId.toString(),
-                            "recipientId", recipientId.toString()
+                            "recipientId", recipientId.toString(),
+                            "auditGroupId", transfer.getAuditMetadata().getAuditGroupId().toString()
                     );
+                }
+
+                if (domainObject instanceof Account) {
+                    final Account transfer = (Account) domainObject;
+                    return Map.of("auditGroupId", transfer.getAuditMetadata().getAuditGroupId().toString());
                 }
                 return Collections.emptyMap();
             }

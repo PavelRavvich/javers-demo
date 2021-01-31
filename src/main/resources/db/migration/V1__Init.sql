@@ -1,7 +1,8 @@
-CREATE TABLE IF NOT EXISTS jv_comment
+CREATE TABLE IF NOT EXISTS audit_comment
 (
-    major_id BIGSERIAL PRIMARY KEY,
-    text     TEXT NOT NULL
+    id             BIGSERIAL PRIMARY KEY,
+    audit_group_id UUID NOT NULL,
+    text           TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS company
