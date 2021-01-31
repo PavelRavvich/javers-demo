@@ -34,7 +34,7 @@ public class TransferServiceImpl implements TransferService {
                 .recipient(Account.builder().id(dto.getRecipientId()).build())
                 .build();
 
-        Transfer savedTransfer = transferRepository.save(transfer);
+        Transfer savedTransfer = save(transfer);
 
         return TransferDto.builder()
                 .id(savedTransfer.getId())
@@ -43,5 +43,10 @@ public class TransferServiceImpl implements TransferService {
                 .senderId(savedTransfer.getSender().getId())
                 .recipientId(savedTransfer.getRecipient().getId())
                 .build();
+    }
+
+    @JaversAuditable
+    public Transfer save(Transfer transfer) {
+        return transferRepository.save(transfer);
     }
 }
