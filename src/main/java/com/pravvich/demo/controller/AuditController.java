@@ -6,7 +6,6 @@ import com.pravvich.demo.model.Transfer;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.javers.core.Changes;
 import org.javers.core.Javers;
 import org.javers.core.diff.Change;
 import org.javers.repository.jql.JqlQuery;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,25 +51,22 @@ public class AuditController {
                     .orElseThrow()
                     .getProperties()
                     .get("auditGroupId");
-            if (!changeBunches.containsKey(auditGroupId)) {
+            if (changeBunches.containsKey(auditGroupId)) {
+                changeBunches.get(auditGroupId).getChanges().add(accountChange);
+            } else {
                 JqlQuery transferQuery = QueryBuilder.byClass(Transfer.class)
                         .withCommitProperty("auditGroupId", auditGroupId)
                         .withNewObjectChanges()
                         .build();
-                Changes changes = javers.findChanges(transferQuery);
+
+                List<Change> changes = new ArrayList<>(javers.findChanges(transferQuery));
                 changes.add(accountChange);
                 ChangeBunch changeBunch = ChangeBunch.builder().changes(changes).build();
                 changeBunches.put(auditGroupId, changeBunch);
-            } else {
-                changeBunches.get(auditGroupId).getChanges().add(accountChange);
             }
         }
 
         return javers.getJsonConverter().toJson(changeBunches.values());
-    }
-
-    private long getId(Change change) {
-        return change.getCommitMetadata().orElseThrow().getId().getMajorId();
     }
 
     @Builder
