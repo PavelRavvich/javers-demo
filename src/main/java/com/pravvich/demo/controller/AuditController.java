@@ -1,13 +1,20 @@
 package com.pravvich.demo.controller;
 
+import com.pravvich.demo.dto.ChangeBunchDto;
 import com.pravvich.demo.model.Account;
+import com.pravvich.demo.model.Comment;
 import com.pravvich.demo.model.Company;
 import com.pravvich.demo.model.Transfer;
+import com.pravvich.demo.repository.CommentRepository;
 import lombok.Builder;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.javers.core.Changes;
 import org.javers.core.Javers;
 import org.javers.core.diff.Change;
+import org.javers.core.diff.changetype.NewObject;
+import org.javers.core.diff.changetype.ReferenceChange;
+import org.javers.core.diff.changetype.ValueChange;
 import org.javers.repository.jql.JqlQuery;
 import org.javers.repository.jql.QueryBuilder;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +23,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+
+import static java.util.Objects.nonNull;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,6 +33,7 @@ import java.util.Map;
 public class AuditController {
 
     private final Javers javers;
+    private final CommentRepository commentRepository;
 
     @GetMapping("/company")
     public ResponseEntity<String> getCompanyChanges() {
@@ -59,20 +66,90 @@ public class AuditController {
                         .withNewObjectChanges()
                         .build();
 
-                List<Change> changes = new ArrayList<>(javers.findChanges(transferQuery));
-                changes.add(accountChange);
-                ChangeBunch changeBunch = ChangeBunch.builder().changes(changes).build();
+                Changes changes = javers.findChanges(transferQuery);
+                List<Change> additionChanges = new ArrayList<>(changes);
+                additionChanges.add(accountChange);
+
+                Comment comment = commentRepository
+                        .findByAuditGroupId(UUID.fromString(auditGroupId))
+                        .orElse(new Comment());
+
+                ChangeBunch changeBunch = ChangeBunch.builder()
+                        .changes(additionChanges)
+                        .comment(comment)
+                        .build();
+
                 changeBunches.put(auditGroupId, changeBunch);
             }
         }
 
-        return javers.getJsonConverter().toJson(changeBunches.values());
+        List<ChangeBunchDto> bunches = new ArrayList<>();
+        for (String auditGroupId : changeBunches.keySet()) {
+            ChangeBunchDto butchDto = new ChangeBunchDto();
+            butchDto.setAuditGroupId(auditGroupId);
+
+            ChangeBunch changeBunch = changeBunches.get(auditGroupId);
+            for (Change change : changeBunch.getChanges()) {
+                if (change instanceof ValueChange) {
+                    ValueChange updateObjectChange = (ValueChange) change;
+                    String changeMessage = extractUpdateObjectChange(updateObjectChange);
+                    butchDto.addChange(changeMessage);
+                } else if(change instanceof NewObject) {
+                    NewObject newObjectChange = (NewObject) change;
+                    String changeMessage = extractNewObjectChange(newObjectChange);
+                    butchDto.addChange(changeMessage);
+                } else if (change instanceof ReferenceChange) {
+                    ReferenceChange referenceChange = (ReferenceChange) change;
+
+                }
+            }
+            bunches.add(butchDto);
+        }
+
+
+        return javers.getJsonConverter().toJson(bunches);
+    }
+
+    String extractUpdateObjectChange(ValueChange valueChange) {
+        StringBuilder sb = new StringBuilder("Update ");
+
+        String oldValue = nonNull(valueChange.getLeft()) ? valueChange.getLeft().toString() : "";
+        String newValue = nonNull(valueChange.getRight()) ? valueChange.getRight().toString() : "";
+        sb.append(valueChange.getPropertyName())
+                .append(" from ").append(oldValue.isEmpty() ? "null" : oldValue)
+                .append(" to ").append(newValue.isEmpty() ? "null" : newValue);
+        valueChange.getCommitMetadata().ifPresent(commitMetadata ->
+                sb.append(" Date:").append(commitMetadata.getCommitDate())
+                        .append(" Author: ").append(commitMetadata.getAuthor()));
+        return sb.toString();
+    }
+
+    String extractNewObjectChange(NewObject newObjectChange) {
+        System.out.println();
+        return "null";
+    }
+
+    String extractReferenceChange(ReferenceChange referenceChange) {
+        StringBuilder sb = new StringBuilder("Update ");
+        referenceChange.getCommitMetadata().ifPresent(commitMetadata -> {
+                    sb.append(" Date:").append(commitMetadata.getCommitDate())
+                            .append(" Author: ").append(commitMetadata.getAuthor());
+
+            String typeName = referenceChange.getRight().value();
+            sb.append(referenceChange.getPropertyName()).append(typeName);
+
+            // TODO: 2/1/2021 featch data
+        });
+
+        final String sender = referenceChange.getPropertyName();
+
+        return "";
     }
 
     @Builder
     @Data
     static class ChangeBunch {
-        private String comment;
+        private Comment comment;
         private List<Change> changes;
     }
 
