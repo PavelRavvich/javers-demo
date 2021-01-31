@@ -49,7 +49,6 @@ public class AuditController {
                 .withCommitProperty("senderId", id.toString())
                 .withNewObjectChanges()
                 .build();
-
         Changes transferChanges = javers.findChanges(transferQuery);
 
         List<Change> changes = Stream.of(accountChanges, transferChanges)
