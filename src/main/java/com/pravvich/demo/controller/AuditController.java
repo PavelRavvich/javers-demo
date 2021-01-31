@@ -85,6 +85,7 @@ public class AuditController {
         for (String auditGroupId : changeBunches.keySet()) {
             ChangeBunchDto butchDto = new ChangeBunchDto();
             butchDto.setAuditGroupId(auditGroupId);
+            butchDto.setComment(changeBunches.get(auditGroupId).getComment().getText());
             ChangeBunch changeBunch = changeBunches.get(auditGroupId);
             for (Change change : changeBunch.getChanges()) {
                 if (change instanceof ValueChange) {

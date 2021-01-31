@@ -3,6 +3,7 @@ package com.pravvich.demo.service;
 import com.pravvich.demo.dto.TransferDto;
 import com.pravvich.demo.model.Account;
 import com.pravvich.demo.model.AuditMetadata;
+import com.pravvich.demo.model.Comment;
 import com.pravvich.demo.model.Transfer;
 import com.pravvich.demo.repository.CommentRepository;
 import com.pravvich.demo.repository.TransferRepository;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
 import java.util.NoSuchElementException;
+
+import static java.util.Objects.nonNull;
 
 @Service
 @RequiredArgsConstructor
@@ -31,7 +34,11 @@ public class TransferServiceImpl implements TransferService {
         Transfer transfer = Transfer.builder()
                 .id(dto.getId())
                 .value(dto.getValue())
-                .auditMetadata(new AuditMetadata())
+                .auditMetadata(
+                        nonNull(dto.getAuditGroupId())
+                                ? AuditMetadata.builder().auditGroupId(dto.getAuditGroupId()).build()
+                                : new AuditMetadata()
+                )
                 .datetime(new Timestamp(System.currentTimeMillis()))
                 .sender(Account.builder().id(dto.getSenderId()).build())
                 .recipient(Account.builder().id(dto.getRecipientId()).build())
@@ -39,7 +46,11 @@ public class TransferServiceImpl implements TransferService {
 
         Transfer savedTransfer = save(transfer);
 
-        // todo сохранение комментария c auditGroupId
+        Comment comment = Comment.builder()
+                .text("Some comment text")
+                .auditGroupId(transfer.getAuditMetadata().getAuditGroupId())
+                .build();
+        commentRepository.save(comment);
 
         return TransferDto.builder()
                 .id(savedTransfer.getId())
