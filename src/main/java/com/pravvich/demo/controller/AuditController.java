@@ -12,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.javers.core.Changes;
 import org.javers.core.Javers;
 import org.javers.core.diff.Change;
-import org.javers.core.diff.changetype.NewObject;
-import org.javers.core.diff.changetype.ReferenceChange;
 import org.javers.core.diff.changetype.ValueChange;
 import org.javers.repository.jql.JqlQuery;
 import org.javers.repository.jql.QueryBuilder;
@@ -87,25 +85,16 @@ public class AuditController {
         for (String auditGroupId : changeBunches.keySet()) {
             ChangeBunchDto butchDto = new ChangeBunchDto();
             butchDto.setAuditGroupId(auditGroupId);
-
             ChangeBunch changeBunch = changeBunches.get(auditGroupId);
             for (Change change : changeBunch.getChanges()) {
                 if (change instanceof ValueChange) {
                     ValueChange updateObjectChange = (ValueChange) change;
                     String changeMessage = extractUpdateObjectChange(updateObjectChange);
                     butchDto.addChange(changeMessage);
-                } else if(change instanceof NewObject) {
-                    NewObject newObjectChange = (NewObject) change;
-                    String changeMessage = extractNewObjectChange(newObjectChange);
-                    butchDto.addChange(changeMessage);
-                } else if (change instanceof ReferenceChange) {
-                    ReferenceChange referenceChange = (ReferenceChange) change;
-
                 }
             }
             bunches.add(butchDto);
         }
-
 
         return javers.getJsonConverter().toJson(bunches);
     }
@@ -122,28 +111,6 @@ public class AuditController {
                 sb.append(" Date:").append(commitMetadata.getCommitDate())
                         .append(" Author: ").append(commitMetadata.getAuthor()));
         return sb.toString();
-    }
-
-    String extractNewObjectChange(NewObject newObjectChange) {
-        System.out.println();
-        return "null";
-    }
-
-    String extractReferenceChange(ReferenceChange referenceChange) {
-        StringBuilder sb = new StringBuilder("Update ");
-        referenceChange.getCommitMetadata().ifPresent(commitMetadata -> {
-                    sb.append(" Date:").append(commitMetadata.getCommitDate())
-                            .append(" Author: ").append(commitMetadata.getAuthor());
-
-            String typeName = referenceChange.getRight().value();
-            sb.append(referenceChange.getPropertyName()).append(typeName);
-
-            // TODO: 2/1/2021 featch data
-        });
-
-        final String sender = referenceChange.getPropertyName();
-
-        return "";
     }
 
     @Builder
