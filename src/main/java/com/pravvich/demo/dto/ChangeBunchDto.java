@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,9 @@ public class ChangeBunchDto {
 
     @JsonProperty("auditGroupId")
     private String auditGroupId;
+
+    @JsonProperty("date")
+    private LocalDateTime date;
 
     @JsonProperty("comment")
     private String comment;

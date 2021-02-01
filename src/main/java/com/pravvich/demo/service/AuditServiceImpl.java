@@ -15,12 +15,11 @@ import org.javers.repository.jql.JqlQuery;
 import org.javers.repository.jql.QueryBuilder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static java.util.Objects.nonNull;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +27,7 @@ public class AuditServiceImpl implements AuditService {
 
     private final Javers javers;
     private final CommentService commentService;
+    private final MessageProviderService messageProviderService;
 
     @Override
     public List<ChangeBunchDto> getChangesByAccountId(Long accountId) {
@@ -46,6 +46,7 @@ public class AuditServiceImpl implements AuditService {
                 List<Change> transferChanges = getTransferChanges(auditGroupId);
                 transferChanges.add(accountChange);
 
+                // TODO: 2/1/2021 N+1 findInAuditGroupIds(List)
                 ChangeBunch changeBunch = ChangeBunch.builder()
                         .comment(commentService.findByAuditGroupId(auditGroupId))
                         .changes(transferChanges)
@@ -70,32 +71,21 @@ public class AuditServiceImpl implements AuditService {
     private List<ChangeBunchDto> mapDto(Map<String, ChangeBunch> changeBunches) {
         List<ChangeBunchDto> bunches = new ArrayList<>(changeBunches.size());
         changeBunches.keySet().forEach(auditGroupId -> {
+            ChangeBunch changeBunch = changeBunches.get(auditGroupId);
             ChangeBunchDto butchDto = new ChangeBunchDto();
             butchDto.setAuditGroupId(auditGroupId);
+            LocalDateTime commitDate = changeBunch.getChanges().get(0).getCommitMetadata().get().getCommitDate();
+            butchDto.setDate(commitDate);
             butchDto.setComment(changeBunches.get(auditGroupId).getComment().getText());
-            ChangeBunch changeBunch = changeBunches.get(auditGroupId);
             changeBunch.getChanges().stream()
                     .filter(change -> change instanceof ValueChange)
                     .map(change -> (ValueChange) change)
-                    .map(this::extractUpdateObjectChange)
+                    .filter(messageProviderService::hasMessage)
+                    .map(messageProviderService::convertToMessage)
                     .forEachOrdered(butchDto::addChange);
             bunches.add(butchDto);
         });
         return bunches;
-    }
-
-    // TODO: 2/1/2021 move to MessageProviderService
-    private String extractUpdateObjectChange(ValueChange valueChange) {
-        StringBuilder sb = new StringBuilder("Update ");
-        String oldValue = nonNull(valueChange.getLeft()) ? valueChange.getLeft().toString() : "";
-        String newValue = nonNull(valueChange.getRight()) ? valueChange.getRight().toString() : "";
-        sb.append(valueChange.getPropertyName())
-                .append(" from ").append(oldValue.isEmpty() ? "null" : oldValue)
-                .append(" to ").append(newValue.isEmpty() ? "null" : newValue);
-        valueChange.getCommitMetadata().ifPresent(commitMetadata ->
-                sb.append(" Date:").append(commitMetadata.getCommitDate())
-                        .append(" Author: ").append(commitMetadata.getAuthor()));
-        return sb.toString();
     }
 
     @Data
