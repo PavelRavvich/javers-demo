@@ -6,6 +6,7 @@ import com.pravvich.demo.model.Comment;
 import com.pravvich.demo.model.MoneyTransfer;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.javers.core.Changes;
 import org.javers.core.Javers;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,8 +38,8 @@ public class AuditServiceImpl implements AuditService {
                 .build();
 
         Map<String, ChangeBunch> changeBunches = new HashMap<>();
-
-        javers.findChanges(accountQuery).forEach(accountChange -> {
+        List<Change> changes = javers.findChanges(accountQuery);
+        changes.forEach(accountChange -> {
             String auditGroupId = accountChange.getCommitMetadata().orElseThrow()
                     .getProperties().get("auditGroupId");
             if (changeBunches.containsKey(auditGroupId)) {
@@ -46,17 +48,16 @@ public class AuditServiceImpl implements AuditService {
                 List<Change> transferChanges = getTransferChanges(auditGroupId);
                 transferChanges.add(accountChange);
 
-                // TODO: 2/1/2021 N+1 findInAuditGroupIds(List)
-                ChangeBunch changeBunch = ChangeBunch.builder()
-                        .comment(commentService.findByAuditGroupId(auditGroupId))
-                        .changes(transferChanges)
-                        .build();
+                ChangeBunch changeBunch = new ChangeBunch();
+                changeBunch.setChanges(transferChanges);
+                accountChange.getCommitMetadata().ifPresent(data ->
+                        changeBunch.setDate(data.getCommitDate()));
 
                 changeBunches.put(auditGroupId, changeBunch);
             }
         });
 
-        return mapDto(changeBunches);
+        return mapToDto(changeBunches, commentService.findByChanges(changes));
     }
 
     private List<Change> getTransferChanges(String auditGroupId) {
@@ -68,21 +69,25 @@ public class AuditServiceImpl implements AuditService {
         return new ArrayList<>(changes);
     }
 
-    private List<ChangeBunchDto> mapDto(Map<String, ChangeBunch> changeBunches) {
+    private List<ChangeBunchDto> mapToDto(Map<String, ChangeBunch> changeBunches, List<Comment> comments) {
         List<ChangeBunchDto> bunches = new ArrayList<>(changeBunches.size());
         changeBunches.keySet().forEach(auditGroupId -> {
             ChangeBunch changeBunch = changeBunches.get(auditGroupId);
             ChangeBunchDto butchDto = new ChangeBunchDto();
-            butchDto.setAuditGroupId(auditGroupId);
-            LocalDateTime commitDate = changeBunch.getChanges().get(0).getCommitMetadata().get().getCommitDate();
-            butchDto.setDate(commitDate);
-            butchDto.setComment(changeBunches.get(auditGroupId).getComment().getText());
+            String comment = comments.stream()
+                    .filter(item -> auditGroupId.equals(item.getAuditGroupId().toString()))
+                    .map(Comment::getText)
+                    .collect(Collectors.joining());
+            butchDto.setComment(comment);
             changeBunch.getChanges().stream()
                     .filter(change -> change instanceof ValueChange)
                     .map(change -> (ValueChange) change)
                     .filter(messageProviderService::hasMessage)
                     .map(messageProviderService::convertToMessage)
                     .forEachOrdered(butchDto::addChange);
+            butchDto.setAuditGroupId(auditGroupId);
+            butchDto.setDate(changeBunch.getDate());
+
             bunches.add(butchDto);
         });
         return bunches;
@@ -90,7 +95,9 @@ public class AuditServiceImpl implements AuditService {
 
     @Data
     @Builder
+    @NoArgsConstructor
     static class ChangeBunch {
+        private LocalDateTime date;
         private Comment comment;
         private List<Change> changes;
     }
