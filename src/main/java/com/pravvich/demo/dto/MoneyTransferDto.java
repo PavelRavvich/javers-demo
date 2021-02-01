@@ -16,13 +16,13 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class TransferDto {
+public class MoneyTransferDto {
 
     @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("value")
-    private BigDecimal value;
+    @JsonProperty("volume")
+    private BigDecimal volume;
 
     @JsonProperty("datetime")
     private Timestamp datetime;

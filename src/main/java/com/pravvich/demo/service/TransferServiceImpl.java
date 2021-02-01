@@ -1,10 +1,10 @@
 package com.pravvich.demo.service;
 
-import com.pravvich.demo.dto.TransferDto;
-import com.pravvich.demo.model.Account;
+import com.pravvich.demo.dto.MoneyTransferDto;
 import com.pravvich.demo.model.AuditMetadata;
+import com.pravvich.demo.model.BankAccount;
 import com.pravvich.demo.model.Comment;
-import com.pravvich.demo.model.Transfer;
+import com.pravvich.demo.model.MoneyTransfer;
 import com.pravvich.demo.repository.CommentRepository;
 import com.pravvich.demo.repository.TransferRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,46 +24,48 @@ public class TransferServiceImpl implements TransferService {
     private final CommentRepository commentRepository;
 
     @Override
-    public Transfer getById(Long transferId) {
+    public MoneyTransfer getById(Long transferId) {
         return transferRepository.findById(transferId)
                 .orElseThrow(NoSuchElementException::new);
     }
 
+    // TODO: 2/1/2021 refactor to mapper
     @Override
-    public TransferDto save(TransferDto dto) {
-        Transfer transfer = Transfer.builder()
+    public MoneyTransferDto save(MoneyTransferDto dto) {
+        MoneyTransfer moneyTransfer = MoneyTransfer.builder()
                 .id(dto.getId())
-                .value(dto.getValue())
+                .volume(dto.getVolume())
                 .auditMetadata(
                         nonNull(dto.getAuditGroupId())
                                 ? AuditMetadata.builder().auditGroupId(dto.getAuditGroupId()).build()
                                 : new AuditMetadata()
                 )
                 .datetime(new Timestamp(System.currentTimeMillis()))
-                .sender(Account.builder().id(dto.getSenderId()).build())
-                .recipient(Account.builder().id(dto.getRecipientId()).build())
+                .sender(BankAccount.builder().id(dto.getSenderId()).build())
+                .recipient(BankAccount.builder().id(dto.getRecipientId()).build())
                 .build();
 
-        Transfer savedTransfer = save(transfer);
+        MoneyTransfer savedMoneyTransfer = save(moneyTransfer);
 
+        // TODO: 2/1/2021 add comment to DTO
         Comment comment = Comment.builder()
                 .text("Some comment text")
-                .auditGroupId(transfer.getAuditMetadata().getAuditGroupId())
+                .auditGroupId(moneyTransfer.getAuditMetadata().getAuditGroupId())
                 .build();
         commentRepository.save(comment);
 
-        return TransferDto.builder()
-                .id(savedTransfer.getId())
-                .value(savedTransfer.getValue())
-                .datetime(savedTransfer.getDatetime())
-                .senderId(savedTransfer.getSender().getId())
-                .recipientId(savedTransfer.getRecipient().getId())
-                .auditGroupId(transfer.getAuditMetadata().getAuditGroupId())
+        return MoneyTransferDto.builder()
+                .id(savedMoneyTransfer.getId())
+                .volume(savedMoneyTransfer.getVolume())
+                .datetime(savedMoneyTransfer.getDatetime())
+                .senderId(savedMoneyTransfer.getSender().getId())
+                .recipientId(savedMoneyTransfer.getRecipient().getId())
+                .auditGroupId(moneyTransfer.getAuditMetadata().getAuditGroupId())
                 .build();
     }
 
     @JaversAuditable
-    public Transfer save(Transfer transfer) {
-        return transferRepository.save(transfer);
+    public MoneyTransfer save(MoneyTransfer moneyTransfer) {
+        return transferRepository.save(moneyTransfer);
     }
 }

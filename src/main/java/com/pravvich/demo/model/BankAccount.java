@@ -11,14 +11,14 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "account")
+@Table(name = "bank_account")
 @ToString(exclude = {"company"})
 @EqualsAndHashCode(exclude = {
         "company",
         "senders",
         "recipients",
 })
-public class Account {
+public class BankAccount {
 
     @Transient
     private AuditMetadata auditMetadata = new AuditMetadata();
@@ -38,9 +38,9 @@ public class Account {
     private Company company;
 
     @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY)
-    private List<Transfer> senders;
+    private List<MoneyTransfer> senders;
 
     @OneToMany(mappedBy = "recipient", fetch = FetchType.LAZY)
-    private List<Transfer> recipients;
+    private List<MoneyTransfer> recipients;
 
 }

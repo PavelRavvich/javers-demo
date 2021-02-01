@@ -1,6 +1,6 @@
 package com.pravvich.demo.controller;
 
-import com.pravvich.demo.model.Account;
+import com.pravvich.demo.model.BankAccount;
 import com.pravvich.demo.service.AccountServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -14,13 +14,13 @@ public class AccountController {
     private final AccountServiceImpl accountService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<Account> getById(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<BankAccount> getById(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(accountService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Account> save(@RequestBody Account account) {
-        return ResponseEntity.ok(accountService.save(account));
+    public ResponseEntity<BankAccount> save(@RequestBody BankAccount bankAccount) {
+        return ResponseEntity.ok(accountService.save(bankAccount));
     }
 
 }

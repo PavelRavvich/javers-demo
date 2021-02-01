@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS company
     name VARCHAR(255) NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS account
+CREATE TABLE IF NOT EXISTS bank_account
 (
     id         BIGSERIAL PRIMARY KEY,
     number     BIGINT UNIQUE NOT NULL,
@@ -19,11 +19,11 @@ CREATE TABLE IF NOT EXISTS account
     company_id BIGINT REFERENCES company (id)
 );
 
-CREATE TABLE IF NOT EXISTS transfer
+CREATE TABLE IF NOT EXISTS money_transfer
 (
     id           BIGSERIAL PRIMARY KEY,
-    value        NUMERIC(10, 2) NOT NULL,
+    volume       NUMERIC(10, 2) NOT NULL,
     datetime     TIMESTAMP      NOT NULL DEFAULT now(),
-    sender_id    BIGINT         NOT NULL REFERENCES account (id),
-    recipient_id BIGINT         NOT NULL REFERENCES account (id)
+    sender_id    BIGINT         NOT NULL REFERENCES bank_account (id),
+    recipient_id BIGINT         NOT NULL REFERENCES bank_account (id)
 );

@@ -1,7 +1,7 @@
 package com.pravvich.demo.config;
 
-import com.pravvich.demo.model.Account;
-import com.pravvich.demo.model.Transfer;
+import com.pravvich.demo.model.BankAccount;
+import com.pravvich.demo.model.MoneyTransfer;
 import org.javers.spring.auditable.CommitPropertiesProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -18,26 +18,27 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableAspectJAutoProxy
 @EnableJpaRepositories({"org.javers.spring.repository"})
-public class JaversConfig {
+public class JaVersConfig {
 
+    // TODO: 2/1/2021 refactor instanceof to strategy
     @Bean
     public CommitPropertiesProvider commitPropertiesProvider() {
         return new CommitPropertiesProvider() {
             @Override
             public Map<String, String> provideForCommittedObject(Object domainObject) {
-                if (domainObject instanceof Transfer) {
-                    final Transfer transfer = (Transfer) domainObject;
-                    final Long senderId = transfer.getSender().getId();
-                    final Long recipientId = transfer.getRecipient().getId();
+                if (domainObject instanceof MoneyTransfer) {
+                    final MoneyTransfer moneyTransfer = (MoneyTransfer) domainObject;
+                    final Long senderId = moneyTransfer.getSender().getId();
+                    final Long recipientId = moneyTransfer.getRecipient().getId();
                     return Map.of(
                             "senderId", senderId.toString(),
                             "recipientId", recipientId.toString(),
-                            "auditGroupId", transfer.getAuditMetadata().getAuditGroupId().toString()
+                            "auditGroupId", moneyTransfer.getAuditMetadata().getAuditGroupId().toString()
                     );
                 }
 
-                if (domainObject instanceof Account) {
-                    final Account transfer = (Account) domainObject;
+                if (domainObject instanceof BankAccount) {
+                    final BankAccount transfer = (BankAccount) domainObject;
                     return Map.of("auditGroupId", transfer.getAuditMetadata().getAuditGroupId().toString());
                 }
                 return Collections.emptyMap();

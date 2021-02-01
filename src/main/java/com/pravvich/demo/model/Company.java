@@ -22,6 +22,6 @@ public class Company {
     private String name;
 
     @OneToMany(mappedBy = "company", fetch = FetchType.LAZY)
-    private List<Account> accounts;
+    private List<BankAccount> bankAccounts;
 
 }

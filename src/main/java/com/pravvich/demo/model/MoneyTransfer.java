@@ -11,12 +11,12 @@ import java.sql.Timestamp;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "transfer")
+@Table(name = "money_transfer")
 @ToString(exclude = {
         "sender",
         "recipient"
 })
-public class Transfer {
+public class MoneyTransfer {
 
     @Transient
     private AuditMetadata auditMetadata = new AuditMetadata();
@@ -25,18 +25,18 @@ public class Transfer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "value")
-    private BigDecimal value;
+    @Column(name = "volume")
+    private BigDecimal volume;
 
     @Column(name = "datetime")
     private Timestamp datetime;
 
     @ManyToOne
     @JoinColumn(name = "sender_id")
-    private Account sender;
+    private BankAccount sender;
 
     @ManyToOne
     @JoinColumn(name = "recipient_id")
-    private Account recipient;
+    private BankAccount recipient;
 
 }

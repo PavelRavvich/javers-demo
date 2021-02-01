@@ -21,7 +21,7 @@ public class Comment {
     private Long id;
 
     @Column(name = "text")
-    private String text;
+    private String text = "";
 
     @Column(name = "audit_group_id")
     private UUID auditGroupId;

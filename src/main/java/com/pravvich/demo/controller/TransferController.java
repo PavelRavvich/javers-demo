@@ -1,7 +1,7 @@
 package com.pravvich.demo.controller;
 
-import com.pravvich.demo.dto.TransferDto;
-import com.pravvich.demo.model.Transfer;
+import com.pravvich.demo.dto.MoneyTransferDto;
+import com.pravvich.demo.model.MoneyTransfer;
 import com.pravvich.demo.service.TransferService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +15,12 @@ public class TransferController {
     private final TransferService transferService;
 
     @GetMapping(path = "/{id}")
-    public ResponseEntity<Transfer> getById(@PathVariable(name = "id") Long id) {
+    public ResponseEntity<MoneyTransfer> getById(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(transferService.getById(id));
     }
 
     @PostMapping
-    public ResponseEntity<TransferDto> save(@RequestBody TransferDto transfer) {
+    public ResponseEntity<MoneyTransferDto> save(@RequestBody MoneyTransferDto transfer) {
         return ResponseEntity.ok(transferService.save(transfer));
     }
 }

@@ -15,7 +15,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AccountDto {
+public class BankAccountDto {
 
     @JsonProperty("id")
     private Long id;

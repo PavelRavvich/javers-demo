@@ -7,6 +7,7 @@ import org.javers.core.commit.Commit;
 import org.javers.core.diff.changetype.PropertyChange;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,5 +26,12 @@ public class CommentServiceImpl implements CommentService {
                 .text(message)
                 .build();
         commentRepository.save(comment);
+    }
+
+    @Override
+    public Comment findByAuditGroupId(String auditGroupId) {
+        return commentRepository
+                .findByAuditGroupId(UUID.fromString(auditGroupId))
+                .orElse(new Comment());
     }
 }

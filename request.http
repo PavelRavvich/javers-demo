@@ -1,4 +1,4 @@
-GET http://localhost:8080/api/account/1
+GET http://localhost:8080/api/bankAccount/1
 Accept: application/json
 
 ###

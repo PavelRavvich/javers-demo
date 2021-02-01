@@ -1,8 +1,8 @@
 package com.pravvich.demo.service;
 
-import com.pravvich.demo.dto.AccountDto;
-import com.pravvich.demo.model.Account;
+import com.pravvich.demo.dto.BankAccountDto;
 import com.pravvich.demo.model.AuditMetadata;
+import com.pravvich.demo.model.BankAccount;
 import com.pravvich.demo.repository.AccountRepository;
 import com.pravvich.demo.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,27 +20,27 @@ public class AccountServiceImpl implements AccountService {
     private final CommentRepository commentRepository;
 
     @Override
-    public Account getById(Long accountId) {
+    public BankAccount getById(Long accountId) {
         return accountRepository.findById(accountId)
                 .orElseThrow(NoSuchElementException::new);
     }
 
     @Transactional
 
-    public AccountDto save(AccountDto dto) {
-        final Account account = Account.builder()
+    public BankAccountDto save(BankAccountDto dto) {
+        final BankAccount bankAccount = BankAccount.builder()
                 .id(dto.getId())
                 .auditMetadata(new AuditMetadata())
                 .balance(dto.getBalance())
                 .number(dto.getNumber())
                 .build();
 
-        Account saved = save(account);
+        BankAccount saved = save(bankAccount);
 
         // todo сохранение комментария c auditGroupId commentRepository...
 
-        return AccountDto.builder()
-                .auditGroupId(account.getAuditMetadata().getAuditGroupId())
+        return BankAccountDto.builder()
+                .auditGroupId(bankAccount.getAuditMetadata().getAuditGroupId())
                 .balance(saved.getBalance())
                 .id(saved.getId())
                 .number(saved.getNumber())
@@ -48,7 +48,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @JaversAuditable
-    public Account save(Account account) {
-        return accountRepository.save(account);
+    public BankAccount save(BankAccount bankAccount) {
+        return accountRepository.save(bankAccount);
     }
 }

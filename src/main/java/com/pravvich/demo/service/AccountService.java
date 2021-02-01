@@ -1,9 +1,9 @@
 package com.pravvich.demo.service;
 
-import com.pravvich.demo.dto.AccountDto;
-import com.pravvich.demo.model.Account;
+import com.pravvich.demo.dto.BankAccountDto;
+import com.pravvich.demo.model.BankAccount;
 
 public interface AccountService {
-    Account getById(Long accountId);
-    AccountDto save(AccountDto account);
+    BankAccount getById(Long accountId);
+    BankAccountDto save(BankAccountDto account);
 }
