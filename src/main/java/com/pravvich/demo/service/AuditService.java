@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface AuditService {
 
-    List<ChangeBunchDto> getChangesById(Long accountId);
+    List<ChangeBunchDto> getChangesByAccountId(Long accountId);
 
 }

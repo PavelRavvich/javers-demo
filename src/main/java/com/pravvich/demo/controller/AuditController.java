@@ -27,7 +27,7 @@ public class AuditController {
 
     @GetMapping("/account/{id}")
     public ResponseEntity<List<ChangeBunchDto>> getAccountChanges(@PathVariable(name = "id") Long id) {
-        return ResponseEntity.ok(auditService.getChangesById(id));
+        return ResponseEntity.ok(auditService.getChangesByAccountId(id));
     }
 
 }

@@ -30,7 +30,7 @@ public class AuditServiceImpl implements AuditService {
     private final CommentService commentService;
 
     @Override
-    public List<ChangeBunchDto> getChangesById(Long accountId) {
+    public List<ChangeBunchDto> getChangesByAccountId(Long accountId) {
         JqlQuery accountQuery = QueryBuilder.byInstanceId(accountId, BankAccount.class)
                 .withNewObjectChanges()
                 .build();
