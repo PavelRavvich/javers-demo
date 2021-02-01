@@ -1,6 +1,7 @@
 package com.pravvich.demo.model;
 
 import lombok.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -31,10 +32,12 @@ public class MoneyTransfer {
     @Column(name = "datetime")
     private Timestamp datetime;
 
+    @DiffIgnore
     @ManyToOne
     @JoinColumn(name = "sender_id")
     private BankAccount sender;
 
+    @DiffIgnore
     @ManyToOne
     @JoinColumn(name = "recipient_id")
     private BankAccount recipient;

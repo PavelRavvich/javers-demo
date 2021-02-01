@@ -3,6 +3,7 @@ package com.pravvich.demo.service;
 import com.pravvich.demo.dto.BankAccountDto;
 import com.pravvich.demo.model.AuditMetadata;
 import com.pravvich.demo.model.BankAccount;
+import com.pravvich.demo.model.Comment;
 import com.pravvich.demo.repository.AccountRepository;
 import com.pravvich.demo.repository.CommentRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Transactional
-
     public BankAccountDto save(BankAccountDto dto) {
         final BankAccount bankAccount = BankAccount.builder()
                 .id(dto.getId())
@@ -37,7 +37,12 @@ public class AccountServiceImpl implements AccountService {
 
         BankAccount saved = save(bankAccount);
 
-        // todo сохранение комментария c auditGroupId commentRepository...
+        // TODO: 2/1/2021 add comment to DTO
+        Comment comment = Comment.builder()
+                .text("Some comment text")
+                .auditGroupId(dto.getAuditGroupId())
+                .build();
+        commentRepository.save(comment);
 
         return BankAccountDto.builder()
                 .auditGroupId(bankAccount.getAuditMetadata().getAuditGroupId())

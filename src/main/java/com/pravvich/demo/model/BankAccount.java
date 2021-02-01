@@ -1,6 +1,7 @@
 package com.pravvich.demo.model;
 
 import lombok.*;
+import org.javers.core.metamodel.annotation.DiffIgnore;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -16,7 +17,6 @@ import java.util.List;
 @EqualsAndHashCode(exclude = {
         "company",
         "senders",
-        "recipients",
 })
 public class BankAccount {
 
@@ -33,13 +33,16 @@ public class BankAccount {
     @Column(name = "balance")
     private BigDecimal balance;
 
+    @DiffIgnore
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
 
+    @DiffIgnore
     @OneToMany(mappedBy = "sender", fetch = FetchType.LAZY)
     private List<MoneyTransfer> senders;
 
+    @DiffIgnore
     @OneToMany(mappedBy = "recipient", fetch = FetchType.LAZY)
     private List<MoneyTransfer> recipients;
 
