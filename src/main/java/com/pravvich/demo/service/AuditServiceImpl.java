@@ -73,22 +73,22 @@ public class AuditServiceImpl implements AuditService {
         List<ChangeBunchDto> bunches = new ArrayList<>(changeBunches.size());
         changeBunches.keySet().forEach(auditGroupId -> {
             ChangeBunch changeBunch = changeBunches.get(auditGroupId);
-            ChangeBunchDto butchDto = new ChangeBunchDto();
+            ChangeBunchDto bunchDto = new ChangeBunchDto();
             String comment = comments.stream()
                     .filter(item -> auditGroupId.equals(item.getAuditGroupId().toString()))
                     .map(Comment::getText)
                     .collect(Collectors.joining());
-            butchDto.setComment(comment);
+            bunchDto.setComment(comment);
             changeBunch.getChanges().stream()
                     .filter(change -> change instanceof ValueChange)
                     .map(change -> (ValueChange) change)
                     .filter(messageProviderService::hasMessage)
                     .map(messageProviderService::convertToMessage)
-                    .forEachOrdered(butchDto::addChange);
-            butchDto.setAuditGroupId(auditGroupId);
-            butchDto.setDate(changeBunch.getDate());
+                    .forEachOrdered(bunchDto::addChange);
+            bunchDto.setAuditGroupId(auditGroupId);
+            bunchDto.setDate(changeBunch.getDate());
 
-            bunches.add(butchDto);
+            bunches.add(bunchDto);
         });
         return bunches;
     }
