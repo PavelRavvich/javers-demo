@@ -45,6 +45,7 @@ public class AuditServiceImpl implements AuditService {
             if (changeBunches.containsKey(auditGroupId)) {
                 changeBunches.get(auditGroupId).getChanges().add(accountChange);
             } else {
+                // todo fix N+1
                 List<Change> transferChanges = getTransferChanges(auditGroupId);
                 transferChanges.add(accountChange);
 
